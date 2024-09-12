@@ -32,15 +32,7 @@ pipeline {
             }
         }
 
-        stage('Terraform Apply') {
-            steps {
-                script {
-                    // Run terraform apply
-                    // Note: The `-auto-approve` flag is used here to automatically approve the apply action.
-                    sh 'terraform apply -auto-approve'
-                }
-            }
-        }
+        
     }
 
     post {
