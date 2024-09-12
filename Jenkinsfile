@@ -14,11 +14,7 @@ pipeline {
 
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/sanketares/docker-agent3.git'
-            }
-        }
+
 
         stage('Terraform Init') {
             steps {
