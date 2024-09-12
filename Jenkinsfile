@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'hashicorp/terraform:1.5.0' // Use the desired Terraform Docker image
+            image 'hashicorp/terraform' // Use the desired Terraform Docker image
             args  '--entrypoint=""'          // Override the default entrypoint if necessary
         }
     }
