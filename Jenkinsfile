@@ -1,32 +1,43 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'hashicorp/terraform:1.5.0' // Use the desired Terraform Docker image
+            args  '--entrypoint=""'          // Override the default entrypoint if necessary
+        }
+    }
+
 
     stages {
-        stage('Build Docker Image') {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: ''
+            }
+        }
+
+        stage('Terraform Init') {
             steps {
                 script {
-                    def imageName = 'terraform-image'
-                    def imageTag = 'latest'
-
-                    // Build the Docker image
-                    docker.build("${imageName}:${imageTag}", "-f Dockerfile .")
-                    echo 'build done'
+                    // Run terraform init
+                    sh 'terraform init'
                 }
             }
         }
 
-        stage('Run Terraform') {
-            agent {
-                docker {
-                    image 'terraform-image:latest'
-                    args '-v /var/lib/jenkins/workspace:/workspace' // Mount Jenkins workspace
-                    args '--entrypoint=""'
-                }
-            }
+        stage('Terraform Plan') {
             steps {
                 script {
-                    sh 'terraform init'
-                    echo 'completed'
+                    // Run terraform plan
+                    sh 'terraform plan'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                script {
+                    // Run terraform apply
+                    // Note: The `-auto-approve` flag is used here to automatically approve the apply action.
+                    sh 'terraform apply -auto-approve'
                 }
             }
         }
@@ -34,8 +45,16 @@ pipeline {
 
     post {
         always {
-            // Clean up workspace or perform other post-build actions
-            cleanWs()
+            // Archive Terraform plan files or other artifacts if needed
+            archiveArtifacts artifacts: 'terraform.plan', allowEmptyArchive: true
+        }
+
+        success {
+            echo 'Terraform scripts executed successfully!'
+        }
+
+        failure {
+            echo 'Terraform scripts failed!'
         }
     }
 }
